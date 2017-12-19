@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoRecovery.Core", "PhotoRecovery.Core\PhotoRecovery.Core.csproj", "{C9D6C1E8-480D-4498-9A24-D1FAD044CB62}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoRecovery.CLI", "PhotoRecovery.CLI\PhotoRecovery.CLI.csproj", "{06DEF669-1856-442F-8B70-A4F03F0F441A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C9D6C1E8-480D-4498-9A24-D1FAD044CB62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9D6C1E8-480D-4498-9A24-D1FAD044CB62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9D6C1E8-480D-4498-9A24-D1FAD044CB62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9D6C1E8-480D-4498-9A24-D1FAD044CB62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06DEF669-1856-442F-8B70-A4F03F0F441A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06DEF669-1856-442F-8B70-A4F03F0F441A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06DEF669-1856-442F-8B70-A4F03F0F441A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06DEF669-1856-442F-8B70-A4F03F0F441A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C6DB3ED8-358A-4016-976B-1FA35B33B809}
+	EndGlobalSection
+EndGlobal
