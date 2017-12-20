@@ -26,6 +26,11 @@ namespace PhotoRecovery.Core.Data
             Database.SetInitializer(new DatabaseInitializer<Context>());
         }
 
+        public void Vacuum()
+        {
+            this.Database.ExecuteSqlCommand(TransactionalBehavior.DoNotEnsureTransaction, "VACUUM;");
+        }
+
         public DbSet<Dir> Dirs { get; set; }
         
         public DbSet<File> Files { get; set; }

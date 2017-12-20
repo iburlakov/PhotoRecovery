@@ -7,6 +7,8 @@ using NLog;
 using PhotoRecovery.Core.Data;
 using PhotoRecovery.Core.Data.Models;
 using System.Diagnostics;
+using System.Collections.Generic;
+using System.Data.Entity;
 
 namespace PhotoRecovery.Core.Scanner
 {
@@ -35,10 +37,15 @@ namespace PhotoRecovery.Core.Scanner
 
                 this.ScanDir(path);
 
+                this.SaveFiles();
+
                 log.Info("Done, scanned {0} folders {1} files in {2:c}", this.statDirNum, this.statFilesNum,  this.stopwatch.Elapsed);
                 this.stopwatch.Stop();
             }
         }
+
+        private const int FILES_TO_SAVE_CACHE_SIZE = 2500;
+        private List<Data.Models.File> filesToSave = new List<Data.Models.File>();
 
         private void ScanDir(string dirPath, Dir parentDir = null)
         {
@@ -52,7 +59,6 @@ namespace PhotoRecovery.Core.Scanner
                 var filePath = Path.Combine(dirPath, fileName);
                 this.ScanFile(filePath, dir);
             }
-            context.SaveChanges();
 
             foreach (var subDirName in Directory.GetDirectories(dirPath))
             {
@@ -64,8 +70,8 @@ namespace PhotoRecovery.Core.Scanner
         private void ScanFile(string filePath, Dir parentDir)
         {
             var fileInfo = new FileInfo(filePath);
-            this.context.Files.Add(new Data.Models.File() { Name = fileInfo.Name, ParentId = parentDir.Id, Length = fileInfo.Length, Created = fileInfo.CreationTime, Modified = fileInfo.LastWriteTime });
-  
+
+            this.filesToSave.Add(new Data.Models.File() { Name = fileInfo.Name, ParentId = parentDir.Id, Length = fileInfo.Length, Created = fileInfo.CreationTime, Modified = fileInfo.LastWriteTime });
 
             this.statFilesNum++;
             if (this.statFilesNum == 1000 || this.statFilesNum == 5000 || this.statFilesNum == 10000)
@@ -77,6 +83,26 @@ namespace PhotoRecovery.Core.Scanner
             {
                 log.Info("Scanned {0} files", this.statFilesNum);
             }
+
+            if (this.filesToSave.Count > FILES_TO_SAVE_CACHE_SIZE)
+            {
+                this.SaveFiles();
+            }
+        }
+
+        private void SaveFiles()
+        {
+            this.filesToSave.ForEach(f => this.context.Files.Add(f));
+
+            var start = this.stopwatch.Elapsed;
+            this.context.SaveChanges();
+            log.Info("Saved {0} files to database, taken {1:c}", this.filesToSave.Count, this.stopwatch.Elapsed - start);
+
+            start = this.stopwatch.Elapsed;
+            this.context.Vacuum();
+            log.Info("Vacuum, taken {0:c}", this.stopwatch.Elapsed - start);
+
+            this.filesToSave.Clear();
         }
     }
 }

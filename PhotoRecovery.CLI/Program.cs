@@ -14,10 +14,16 @@ namespace PhotoRecovery.CLI
         {
             try
             {
-                var pathToScan = args.GetArgument<string>("path");
+                if (args.HasArgument("-fromScratch"))
+                {
+                    System.IO.File.Delete("photoRecovery.db");
+                    System.IO.File.Delete("photoRecovery.log");
+                }
+
+                var pathToScan = args.GetArgument<string>("-path");
 
                 IScanner scanner;
-                var scanType = args.GetArgument<string>("scan");
+                var scanType = args.GetArgument<string>("-scan");
                 switch (scanType)
                 {
                     case "structure":
@@ -39,6 +45,8 @@ namespace PhotoRecovery.CLI
             catch (Exception e)
             {
                 log.Error(e, "Error!");
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
             }
 
             Console.ReadKey();

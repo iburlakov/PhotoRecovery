@@ -26,5 +26,10 @@ namespace PhotoRecovery.CLI
                 throw new ArgumentException(string.Format("Argument '{0}' is not passed", name));
             }
         }
+
+        public static bool HasArgument(this string[] @this, string name)
+        {
+            return Array.IndexOf(@this, name) >= 0;
+        }
     }
 }
