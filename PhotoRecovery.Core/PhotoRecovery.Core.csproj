@@ -34,6 +34,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Cache\Dir.cs" />
+    <Compile Include="Cache\File.cs" />
+    <Compile Include="Cache\FileRepository.cs" />
+    <Compile Include="Cache\DirRepository.cs" />
+    <Compile Include="Cache\RawFile.cs" />
+    <Compile Include="Cache\RawFileRepository.cs" />
     <Compile Include="Data\Context.cs" />
     <Compile Include="Data\DatabaseInitializer.cs" />
     <Compile Include="Data\Models\Dir.cs" />
@@ -42,6 +48,7 @@
     <Compile Include="Data\DatabaseConfiguration.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Restore\Restorer.cs" />
     <Compile Include="Scanner\IScanner.cs" />
     <Compile Include="Scanner\RawScanner.cs" />
     <Compile Include="Scanner\StructureScanner.cs" />
