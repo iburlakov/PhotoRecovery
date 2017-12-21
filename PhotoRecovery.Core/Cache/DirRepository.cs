@@ -36,27 +36,24 @@ namespace PhotoRecovery.Core.Cache
 
         private void LoadSubDirs(Dir parentDir)
         {
-            List<long> index = null;
+            var isIndexCreated = false;
             foreach (var model in this.context.Dirs.Where(d => d.ParentId == parentDir.Id))
             {
                 var dir = new Dir(model, parentDir);
                 this.allDirs[dir.Id] = dir;
 
-                if (index == null)
+                if (!isIndexCreated)
                 {
-                    if (!this.parentIdIndex.TryGetValue(parentDir.Id, out index))
-                    {
-                        parentIdIndex[parentDir.Id] = index = new List<long>();
-                    }
+                    this.parentIdIndex[parentDir.Id] = new List<long>();
+
+                    isIndexCreated = true;
                 }
 
                 parentIdIndex[parentDir.Id].Add(dir.Id);
 
                 this.LoadSubDirs(dir);
-
             }
         }
-
 
         private List<long> rootDirIndex = new List<long>();
         private Dictionary<long, List<long>> parentIdIndex = new Dictionary<long, List<long>>();

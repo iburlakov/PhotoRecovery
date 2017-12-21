@@ -11,7 +11,6 @@ namespace PhotoRecovery.Core.Cache
     {
         private Context context;
 
-
         public Dictionary<long, RawFile> AllRawFiles { get { return this.allRawFiles; } }
         private Dictionary<long, RawFile> allRawFiles = new Dictionary<long, RawFile>();
 
@@ -23,6 +22,13 @@ namespace PhotoRecovery.Core.Cache
             {
                 var file = new RawFile(model);
                 allRawFiles[file.Id] = file;
+
+                if (!this.lengthIndex.ContainsKey(file.Length))
+                {
+                    lengthIndex[file.Length]  = new List<long>();
+                }
+
+                lengthIndex[file.Length].Add(file.Id);
             }
         }
 
@@ -35,6 +41,24 @@ namespace PhotoRecovery.Core.Cache
             }
 
             return instance;
+        }
+
+        private Dictionary<long, List<long>> lengthIndex = new Dictionary<long, List<long>>();
+
+        public IEnumerable<RawFile> GetRawFilesForLength(long length)
+        {
+            List<long> ids;
+            if (this.lengthIndex.TryGetValue(length, out ids))
+            {
+                foreach (var id in ids)
+                {
+                    RawFile file;
+                    if (this.allRawFiles.TryGetValue(id, out file))
+                    {
+                        yield return file;
+                    }
+                }
+            }
         }
     }
 }

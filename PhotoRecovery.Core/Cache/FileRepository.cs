@@ -29,10 +29,21 @@ namespace PhotoRecovery.Core.Cache
 
         private void LoadFilesForFolder(Dir parentDir)
         {
+
+            var isIndexCreated = false;
             foreach (var model in this.context.Files.Where(f => f.ParentId == parentDir.Id))
             {
                 var file = new File(model, parentDir);
                 this.allFiles[file.Id] = file;
+
+                if(!isIndexCreated)
+                {
+                    this.parentDirIdIndex[parentDir.Id] = new List<long>();
+
+                    isIndexCreated = true;
+                }
+
+                this.parentDirIdIndex[parentDir.Id].Add(file.Id);
             }
 
             foreach (var subDir in this.dirRepo.GetDirsForParentDirId(parentDir.Id)) 
@@ -50,6 +61,24 @@ namespace PhotoRecovery.Core.Cache
             }
 
             return instance;
+        }
+
+        private Dictionary<long, List<long>> parentDirIdIndex = new Dictionary<long, List<long>>();
+
+        public IEnumerable<File> GetFilesForDirectoryId(long dirId)
+        {
+            List<long> ids;
+            if (this.parentDirIdIndex.TryGetValue(dirId, out ids))
+            {
+                foreach (var id in ids)
+                {
+                    File file;
+                    if (this.allFiles.TryGetValue(id, out file))
+                    {
+                        yield return file;
+                    }
+                }
+            }
         }
     }
 }
