@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+using NLog;
 
 using PhotoRecovery.Core.Data;
-using PhotoRecovery.Core.Data.Models;
 
 namespace PhotoRecovery.Core.Cache
 {
     public class DirRepository
     {
+        private static ILogger log = LogManager.GetCurrentClassLogger();
+
         private Context context;
 
         public Dictionary<long, Dir> AllDirs { get { return this.allDirs; } }
         private Dictionary<long, Dir> allDirs = new Dictionary<long, Dir>();
-
 
         private DirRepository(Context context)
         {
@@ -58,6 +59,17 @@ namespace PhotoRecovery.Core.Cache
         private List<long> rootDirIndex = new List<long>();
         private Dictionary<long, List<long>> parentIdIndex = new Dictionary<long, List<long>>();
 
+        private static DirRepository instance;
+        public static DirRepository Load(Context context)
+        {
+            if (instance == null)
+            {
+                instance = new DirRepository(context);
+            }
+
+            return instance;
+        }
+
         public IEnumerable<Dir> GetRootDirs()
         {
             foreach (var rootDirId in this.rootDirIndex)
@@ -76,18 +88,33 @@ namespace PhotoRecovery.Core.Cache
                     yield return this.allDirs[dirId];
                 }
             }
-           
+
         }
 
-        private static DirRepository instance;
-        public static DirRepository Load(Context context)
+        public Dir SetRestored(Dir dir)
         {
-            if (instance == null)
+            try
             {
-                instance = new DirRepository(context);
-            }
+                var model = this.context.Dirs.Where(d => d.Id == dir.Id).Single();
 
-            return instance;
+                model.Restored = true;
+
+                this.context.Entry(model).State = EntityState.Modified;
+
+                this.context.SaveChanges();
+
+                var updatedDir = new Dir(model, this.allDirs[model.ParentId.Value]);
+
+                this.allDirs[updatedDir.Id] = updatedDir;
+
+                return updatedDir;
+            }
+            catch(Exception e)
+            {
+                log.Error(e, "Could not ser {0} to Restored = true", dir);
+
+                return null;
+            }
         }
     }
 }

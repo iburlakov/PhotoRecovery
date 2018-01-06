@@ -5,7 +5,6 @@ using System.IO;
 using NLog;
 
 using PhotoRecovery.Core.Data;
-using PhotoRecovery.Core.Data.Models;
 
 namespace PhotoRecovery.Core.Scanner
 {

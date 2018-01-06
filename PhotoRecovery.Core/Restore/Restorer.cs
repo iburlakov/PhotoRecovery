@@ -1,13 +1,13 @@
-﻿using NLog;
-using PhotoRecovery.Core.Cache;
-using PhotoRecovery.Core.Data;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.IO;
+
+using NLog;
+
+using PhotoRecovery.Core.Cache;
+using PhotoRecovery.Core.Data;
 
 namespace PhotoRecovery.Core.Restore
 {
@@ -21,7 +21,7 @@ namespace PhotoRecovery.Core.Restore
         private FileRepository fileRepo;
         private RawFileRepository rawRepo;
 
-        public Restorer()
+        private Restorer()
         {
             this.context = new Context();
 
@@ -50,13 +50,19 @@ namespace PhotoRecovery.Core.Restore
             Directory.CreateDirectory(toRestorePath);
         }
 
+        private static Restorer instatnce = new Restorer();
+        public static Restorer Instanse { get { return instatnce; } }
+
         private readonly string toRestorePath;
 
-        public void Restore(long dirId)
+        public void Restore(params long[] dirIds)
         {
-            this.Restore(dirId, this.toRestorePath);
+            foreach (var dirId in dirIds)
+            {
+                this.Restore(dirId, this.toRestorePath);
 
-            log.Warn("Report for restoring dir id = {0}, {3} scanned. SUCCESS:\n{1}\nERRORS:\n{2}", dirId, this.success, this.failed, this.numFilesRestored);
+                log.Warn("Report for restoring dir id = {0}, {3} scanned. SUCCESS:\n{1}\nERRORS:\n{2}", dirId, this.success, this.failed, this.numFilesRestored);
+            }
         }
 
         int numFilesRestored = 0;
@@ -75,6 +81,7 @@ namespace PhotoRecovery.Core.Restore
                 var fileExtension = Path.GetExtension(file.Path).ToLower();
                 var possibleContent = this.rawRepo.GetRawFilesForLength(file.Length).Where(f => Path.GetExtension(f.Path) == fileExtension);
 
+                // try to copy found match till first success
                 var attempts = 0;
                 foreach (var content in possibleContent)
                 {
@@ -85,6 +92,7 @@ namespace PhotoRecovery.Core.Restore
                     {
                         System.IO.File.Copy(content.Path, restoredFilePath);
                         attempts++;
+                        break;
                     }
                     catch (Exception e)
                     {
@@ -107,6 +115,8 @@ namespace PhotoRecovery.Core.Restore
             {
                 this.Restore(subDir.Id, path);
             }
+
+            dirRepo.SetRestored(dir);
         }
     }
 }

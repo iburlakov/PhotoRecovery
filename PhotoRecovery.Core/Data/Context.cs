@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
+
 using System.Data.SQLite;
 
 using NLog;
 
 using PhotoRecovery.Core.Data.Models;
+using System.Linq;
 
 namespace PhotoRecovery.Core.Data
 {
@@ -29,6 +31,15 @@ namespace PhotoRecovery.Core.Data
         public void Vacuum()
         {
             this.Database.ExecuteSqlCommand(TransactionalBehavior.DoNotEnsureTransaction, "VACUUM;");
+        }
+
+        public string GetStatString()
+        {
+            return string.Format("Database has {0} dirs with {1} files, {2} raw files and {3} restored dirs.",
+                this.Dirs.Count(),
+                this.Files.Count(),
+                this.RawFiles.Count(),
+                this.Dirs.Count(d => d.Restored.HasValue && d.Restored.Value));
         }
 
         public DbSet<Dir> Dirs { get; set; }
